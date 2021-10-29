@@ -19,7 +19,7 @@ app.post('/create-mentor', async function (req,res){
         data.mentor = req.body.mentor;
         let client = await mongoClient.connect(url);
         let db = client.db('mentor');
-        let data = await db.collection('mentors').insertOne(data);
+        await db.collection('mentors').insertOne(data);
         await client.close();
         res.json({
             message:"Mentor created successfully"
@@ -35,7 +35,7 @@ app.post('/create-student', async function(req,res){
         data.isAssigned = false;
         let client = await mongoClient.connect(url);
         let db = client.db('mentor');
-        let data = await db.collection('students').insertOne(data);
+        await db.collection('students').insertOne(data);
         await client.close();
         res.json({
             message:"Student created successfully"
@@ -52,7 +52,7 @@ app.get("/mentors", async function(req,res){
         await client.close();
         res.json(data)
     } catch (error) {
-        
+        console.log(error)
     }
 })
 app.get("/students", async function(req,res){
@@ -74,8 +74,8 @@ app.post("/assign-student",async function(req,res){
         data.studentid = req.body.studentid;
         let client = await mongoClient.connect(url);
         let db = client.db('mentor');
-        data.studentid.forEach(id => {
-           await db.collection('students').findOneAndUpdate({_id:id},{$set:{mentorid=data.mentorid}});
+        data.studentid.forEach(async (id) => {
+           await db.collection('students').findOneAndUpdate({_id:id},{$set:{mentorid:data.mentorid}});
         });
         await client.close();
         res.json({
@@ -92,7 +92,7 @@ app.post('/assign-mentor',async function(req,res){
         data.mentorid = req.body.mentorid;
         let client = await mongoClient.connect(url);
         let db = client.db('mentor');
-        await db.collection('students').findOneAndUpdate({_id:id},{$set:{mentorid=data.mentorid}});
+        await db.collection('students').findOneAndUpdate({_id:id},{$set:{mentorid:data.mentorid}});
         client.close();
         res.json({
             message:"Mentor assigned"
